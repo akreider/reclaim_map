@@ -1,3 +1,9 @@
+//Map Creation 2 - sets visibility of the layer, instead of adding/removing it
+/*
+ * So the layers are embedded in the mapbox source and style.  default visibility is off.
+ * 
+ */
+
 // check for url parameter to set the view
 function UIState(){
 
@@ -21,6 +27,42 @@ function UIState(){
     window.history.pushState('page2', 'Title', url.search);
   }
 }
+
+
+
+
+//New toggle layer method - sets the visibility
+//function ToggleLayer(layer, status, layernamearray, layerarray, layerstatus) {
+function ToggleLayer(layer, status){
+	if (status==1) {
+		if (layer=='wards')	{
+			map.setLayoutProperty('wards_hover', 'visibility', 'visible');
+			//map.setLayoutProperty('wards_click', 'visibility', 'visible');
+			//add click event - if appropriate
+		}
+		else if (layer=='divisions')	{
+			map.setLayoutProperty('divisions_hover', 'visibility', 'visible');
+			map.setLayoutProperty('divisions_click', 'visibility', 'visible');
+			//add click event - if appropriate
+		}
+	}
+	
+	else if (status==0) {
+		if (layer=='wards')	{
+			map.setLayoutProperty('wards_hover', 'visibility', 'none');
+			//map.setLayoutProperty('wards_click', 'visibility', 'visible');
+			//add click event - if appropriate
+		}
+		else if (layer=='divisions')	{
+			map.setLayoutProperty('divisions_hover', 'visibility', 'none');
+			map.setLayoutProperty('divisions_click', 'visibility', 'none');
+			//add click event - if appropriate
+		}
+	}
+	return false;
+}
+
+
 
 
 //Initializes the source object - used by AddSource
@@ -54,7 +96,7 @@ function InitLayer (layer, id, type, source, source_layer, line_color, line_widt
 }
 
 
-//adds a layer to the map - either a fill or line layer  
+//adds a layer to the map - either a fill or line layer  -- I think the visibility of the layer is set in the style - so if off, you won't see it until you make visible  
 function AddLayerMap (map, layer) {
 	if (layer.type=='fill') {
 		map.addLayer({
@@ -85,11 +127,13 @@ function AddLayerMap (map, layer) {
 }
 
 
+
 //A couple global variables
 map_state = new UIState();
 
 //list of layers - these "layers" can both a data layer and a polygon (aka click) layer -- is there a better name for this?
 var layernamearray=new Array ('wards', 'divisions');
+
 
 //initializing status to off
 var layerstatus=new Object();
@@ -103,17 +147,17 @@ var wards=new Object;
 var divisions=new Object;
 
 var wards_hover= new Object();
-InitLayer (wards_hover, 'wards_hover', 'line', 'phila-wards', 'wards-9rgnox', 	'rgba(106,165,108,1)', 3, '', ["==", "WARD_NUM", ""], 'waterway-label');
+InitLayer (wards_hover, 'wards_hover', 'line', 'phila_wards', 'wards-0s9tle', 	'rgba(106,165,108,1)', 3, '', ["==", "WARD_NUM", ""], 'waterway-label');
 
 //var wards_click - doesn't exist currently...  we should add it!  Maybe some kind of toggle system where you can choose whether to show the division or ward polygon
 
 var divisions_hover = new Object();
-InitLayer (divisions_hover, 'divisions_hover', 'fill', 'phila-ward-divisions', 'divisions_cp-3bb6vb', '', 0, 'rgba(33,150,243,0.5)', ["==", "DIVISION_NUM", map_state.division], 'waterway-label');
+InitLayer (divisions_hover, 'divisions_hover', 'fill', 'phila_ward_divisions', 'divisions_cp-brpbku', '', 0, 'rgba(33,150,243,0.5)', ["==", "DIVISION_NUM", map_state.division], 'waterway-label');
 
 //this is really a property of the divisions layer...  a shows the division polygon in solid blue  
 var divisions_click=new Object();
 //this includes a dummy filter "1"=="1" -- as I'm unsure how to add an empty filter
-InitLayer (divisions_click, 'divisions_click', 'fill', 'phila-ward-divisions', 'divisions_cp-3bb6vb', '', 0, 'rgba(33,150,243,0.01)', ["==", "1", "1"],'');
+InitLayer (divisions_click, 'divisions_click', 'fill', 'phila_ward_divisions', 'divisions_cp-brpbku', '', 0, 'rgba(33,150,243,0.01)', ["==", "1", "1"],'');
 
 //adding hover and click into wards and divisions
 wards.hover=wards_hover;
@@ -127,10 +171,10 @@ layerarray.divisions=divisions;
 layerarray.wards=wards;
 
 var divisions_source = new Object();
-InitSource (divisions_source, 'phila-ward-divisions', 'vector', 'mapbox://aerispaha.0ava9jx8');
+InitSource (divisions_source, 'phila_ward_divisions', 'vector', 'mapbox://reclaimphillymap.8caqnfc5');
 
 var wards_source=new Object();
-InitSource (wards_source, 'phila-wards', 'vector', 'mapbox://aerispaha.bto5kb2v');
+InitSource (wards_source, 'phila_wards', 'vector', 'mapbox://reclaimphillymap.6b3b121k');
 
 
 
@@ -156,15 +200,16 @@ map.on('load', function() {
   map.addControl(geocoder);
 
   //load interactive layers into the map
-  /*
+  
   AddSource (map, divisions_source);
   AddSource (map, wards_source);
   AddLayerMap (map, wards_hover);
   AddLayerMap (map, divisions_hover);
   AddLayerMap (map, divisions_click);
-  */ 
+   
   layerstatus.wards=1;
-  layerstatus.divisions=1;  
+  layerstatus.divisions=1;
+    
   
   //Geocoder point layer
   map.addSource('single-point', {
@@ -188,12 +233,15 @@ map.on('load', function() {
     console.log(ev)
   });
 
+  
   // When a click event occurs near a polygon, open a popup at the location of
   // the feature, with description HTML from its properties.
+  //should only have this if the divisions (or wards?) layer is enabled
+  
   map.on('click','divisions_click',  function (e) {
 
     console.log(e)
-    var features = e.features;//= map.queryRenderedFeatures(e.point, { layers: ['phila-ward-divisions', 'phila-wards'] });
+    var features = e.features;//= map.queryRenderedFeatures(e.point, { layers: ['phila_ward_divisions', 'phila_wards'] });
     if (!features.length) {
         map.setFilter("divisions_hover", ["==", "DIVISION_NUM", ""]);
         return;
@@ -233,6 +281,7 @@ map.on('load', function() {
             .addTo(map);
         }
     }
+    
 
     });
     // Use the same approach as above to indicate that the symbols are clickable
@@ -241,6 +290,7 @@ map.on('load', function() {
         var features = map.queryRenderedFeatures(e.point, { layers: ['divisions_click'] });
         map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
     });
+    
 
 });
 
@@ -254,6 +304,7 @@ map.on('moveend', function(ev) {
 //This version sets the layer's status to 1 or 0
 //layerarray - array of possible layer names -- hmm
 //layerstatus - array of layer status
+/*
 function ToggleLayer(layer, status, layernamearray, layerarray, layerstatus) {
 
 	//if layer exists
@@ -283,3 +334,4 @@ function ToggleLayer(layer, status, layernamearray, layerarray, layerstatus) {
 	//cancels the opening of a new page from the clicking of an <a> link
 	return false;
 }
+*/
