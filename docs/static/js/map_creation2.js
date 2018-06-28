@@ -200,12 +200,20 @@ map.on('load', function() {
   map.addControl(geocoder);
 
   //load interactive layers into the map
+  //Hmm - the layers load by default...  This might be more about naming things so that I can try to toggle them.  However, the toggling is failing.
   
   AddSource (map, divisions_source);
   AddSource (map, wards_source);
   AddLayerMap (map, wards_hover);
   AddLayerMap (map, divisions_hover);
   AddLayerMap (map, divisions_click);
+  
+  
+  //turning off the layers fails  -- why doesn't this code work?
+  map.setLayoutProperty('wards_hover', 'visibility', 'none');
+  map.setLayoutProperty('divisions_hover', 'visibility', 'none');
+  map.setLayoutProperty('divisions_click', 'visibility', 'none');
+  
    
   layerstatus.wards=1;
   layerstatus.divisions=1;
@@ -237,7 +245,7 @@ map.on('load', function() {
   // When a click event occurs near a polygon, open a popup at the location of
   // the feature, with description HTML from its properties.
   //should only have this if the divisions (or wards?) layer is enabled
-  
+  /*
   map.on('click','divisions_click',  function (e) {
 
     console.log(e)
@@ -290,7 +298,7 @@ map.on('load', function() {
         var features = map.queryRenderedFeatures(e.point, { layers: ['divisions_click'] });
         map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
     });
-    
+    */
 
 });
 
