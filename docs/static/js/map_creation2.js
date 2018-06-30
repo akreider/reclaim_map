@@ -147,7 +147,7 @@ var wards=new Object;
 var divisions=new Object;
 
 var wards_hover= new Object();
-InitLayer (wards_hover, 'wards_hover', 'line', 'phila_wards', 'wards-0s9tle', 	'rgba(106,165,108,1)', 3, '', ["==", "WARD_NUM", ""], 'waterway-label');
+InitLayer (wards_hover, 'wards_hover', 'line', 'phila_wards', 'wards-0s9tle', 	'rgba(106,165,108,1)', 3, '', ["has", "WARD_NUM"], 'waterway-label');
 
 //var wards_click - doesn't exist currently...  we should add it!  Maybe some kind of toggle system where you can choose whether to show the division or ward polygon
 
@@ -157,7 +157,7 @@ InitLayer (divisions_hover, 'divisions_hover', 'fill', 'phila_ward_divisions', '
 //this is really a property of the divisions layer...  a shows the division polygon in solid blue  
 var divisions_click=new Object();
 //this includes a dummy filter "1"=="1" -- as I'm unsure how to add an empty filter
-InitLayer (divisions_click, 'divisions_click', 'fill', 'phila_ward_divisions', 'divisions_cp-brpbku', '', 0, 'rgba(33,150,243,0.01)', ["==", "1", "1"],'');
+InitLayer (divisions_click, 'divisions_click', 'fill', 'phila_ward_divisions', 'divisions_cp-brpbku', '', 0, 'rgba(33,150,243,0.7)', ["has", "DIVISION_NUM"],'');
 
 //adding hover and click into wards and divisions
 wards.hover=wards_hover;
